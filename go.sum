@@ -1,0 +1,10 @@
+github.com/chuhlomin/gbfs-go v0.0.0-20201205204530-719a173e5ef7 h1:ycjgjp33d3ob4lkVqMJhfa/kJAXqRKTV35wwh8e6X6c=
+github.com/chuhlomin/gbfs-go v0.0.0-20201205204530-719a173e5ef7/go.mod h1:a6svNyS3b9X8hM5CJc/7/lxaobAm3JRbQLk+2/BmNIw=
+github.com/chuhlomin/gbfs-go v0.0.0-20201205205322-f1f64112d513 h1:at8lLep9tR749kBwXEBDb9oOLKsF16gzZpKhbeQ7Kg8=
+github.com/chuhlomin/gbfs-go v0.0.0-20201205205322-f1f64112d513/go.mod h1:a6svNyS3b9X8hM5CJc/7/lxaobAm3JRbQLk+2/BmNIw=
+github.com/mattn/go-runewidth v0.0.7 h1:Ei8KR0497xHyKJPAv59M1dkC+rOZCMBJ+t3fZ+twI54=
+github.com/mattn/go-runewidth v0.0.7/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
+github.com/olekukonko/tablewriter v0.0.4 h1:vHD/YYe1Wolo78koG299f7V/VAS08c6IpCLn+Ejf/w8=
+github.com/olekukonko/tablewriter v0.0.4/go.mod h1:zq6QwlOf5SlnkVbMSr5EoBv3636FWnp+qbPhuoO21uA=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
