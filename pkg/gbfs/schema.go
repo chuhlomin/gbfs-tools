@@ -1,6 +1,8 @@
 package gbfs
 
 import (
+	"fmt"
+
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/relay"
 )
@@ -78,6 +80,28 @@ func init() {
 					}
 
 					return relay.ConnectionFromArray(result, args), nil
+				},
+			},
+			"system": &graphql.Field{
+				Type: systemType,
+				Args: graphql.FieldConfigArgument{
+					"id": &graphql.ArgumentConfig{
+						Type:        graphql.String,
+						Description: "System ID",
+					},
+				},
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					systems, err := GetSystems()
+					if err != nil {
+						return nil, err
+					}
+					for _, s := range systems {
+						if s.ID == p.Args["id"] {
+							return s, nil
+						}
+					}
+
+					return nil, fmt.Errorf("System %q not found", p.Args["id"])
 				},
 			},
 		},
