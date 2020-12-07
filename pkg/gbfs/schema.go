@@ -3,6 +3,7 @@ package gbfs
 import (
 	"fmt"
 
+	"github.com/chuhlomin/gbfs-go"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/relay"
 )
@@ -41,6 +42,30 @@ func init() {
 				Type:        graphql.String,
 				Description: "Auto-discovery URL",
 			},
+			"languages": &graphql.Field{
+				Type:        &graphql.List{OfType: graphql.String},
+				Description: "Available GTFS languages",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					source := p.Source
+					switch t := source.(type) {
+					case gbfs.System:
+						system := source.(gbfs.System)
+						lf, err := GetGBFS(system.AutoDiscoveryURL)
+						if err != nil {
+							return nil, fmt.Errorf("Failed to get GBFS from %q: %v", system.AutoDiscoveryURL, err)
+						}
+
+						var result []string
+						for l := range lf {
+							result = append(result, l)
+						}
+						return result, nil
+
+					default:
+						return nil, fmt.Errorf("Unexpected type %T in source: %v", t, p.Source)
+					}
+				},
+			},
 		},
 	})
 
@@ -65,7 +90,7 @@ func init() {
 
 					countryCode, filterByCountryCode := p.Args["countryCode"]
 
-					systems, err := GetSystems()
+					systems, err := GetSystems(gbfs.SystemsNABSA)
 					if err != nil {
 						return nil, err
 					}
@@ -91,7 +116,7 @@ func init() {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					systems, err := GetSystems()
+					systems, err := GetSystems(gbfs.SystemsNABSA)
 					if err != nil {
 						return nil, err
 					}
