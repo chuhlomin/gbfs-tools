@@ -89,7 +89,7 @@ func renderTable(data [][]string) {
 	table.Render()
 }
 
-func getSystemStatusEmoji(gbfs *gbfs.GBFS, err error) string {
+func getSystemStatusEmoji(gbfs *gbfs.GBFSResponse, err error) string {
 	if err != nil {
 		return "×"
 	}
@@ -101,7 +101,7 @@ func getSystemStatusEmoji(gbfs *gbfs.GBFS, err error) string {
 	return "✔️"
 }
 
-func hasFeed(client *gbfs.Client, gbfs *gbfs.GBFS, err error, feedName string) string {
+func hasFeed(client *gbfs.Client, gbfs *gbfs.GBFSResponse, err error, feedName string) string {
 	if err != nil {
 		return " "
 	}
@@ -176,7 +176,7 @@ func hasFeed(client *gbfs.Client, gbfs *gbfs.GBFS, err error, feedName string) s
 	return " "
 }
 
-func getSystemLangs(gbfs *gbfs.GBFS, err error) string {
+func getSystemLangs(gbfs *gbfs.GBFSResponse, err error) string {
 	if err != nil {
 		return " "
 	}
