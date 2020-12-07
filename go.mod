@@ -3,6 +3,7 @@ module github.com/chuhlomin/gbfs-tools
 go 1.15
 
 require (
+	github.com/caarlos0/env/v6 v6.4.0
 	github.com/chuhlomin/gbfs-go v0.0.0-20201207001333-657a62cf6795
 	github.com/graphql-go/graphql v0.7.9
 	github.com/graphql-go/handler v0.2.3

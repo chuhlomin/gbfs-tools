@@ -14,7 +14,7 @@ func init() {
 		Name:        "System",
 		Description: "Bikeshare system",
 		Fields: graphql.Fields{
-			"_id": relay.GlobalIDField("System", nil),
+			// "id": relay.GlobalIDField("System", nil),
 			"id": &graphql.Field{
 				Type:        graphql.String,
 				Description: "System ID",
@@ -47,22 +47,34 @@ func init() {
 		NodeType: systemType,
 	})
 
+	systemsArgs := relay.ConnectionArgs
+	systemsArgs["countryCode"] = &graphql.ArgumentConfig{
+		Type: graphql.String,
+	}
+
 	queryType := graphql.NewObject(graphql.ObjectConfig{
 		Name: "Query",
 		Fields: graphql.Fields{
 			"systems": &graphql.Field{
 				Type: systemsConnectionDefinition.ConnectionType,
-				Args: relay.ConnectionArgs,
+				Args: systemsArgs,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					args := relay.NewConnectionArguments(p.Args)
+
+					countryCode, filterByCountryCode := p.Args["countryCode"]
 
 					systems, err := GetSystems()
 					if err != nil {
 						return nil, err
 					}
-					result := make([]interface{}, len(systems))
+					var result []interface{}
 					for i := range systems {
-						result[i] = systems[i]
+						if filterByCountryCode && systems[i].CountryCode != countryCode {
+							// log.Printf("Filter out %s (%s)", systems[i].ID, systems[i].CountryCode)
+							continue
+						}
+
+						result = append(result, systems[i])
 					}
 
 					return relay.ConnectionFromArray(result, args), nil
