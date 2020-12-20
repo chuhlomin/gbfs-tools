@@ -20,8 +20,7 @@ jobs:
       - setup_remote_docker
       - run:
           command: |
-            ls -la ~/project
-            ls -la ~/
+            ls -la ~/project/cmd/server
       - run: docker login --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD cr.chuhlomin.com
       - run: docker build -t ci.chuhlomin.com:circleci-${CIRCLE_SHA1} .
       - run: docker push ci.chuhlomin.com:circleci-${CIRCLE_SHA1}
