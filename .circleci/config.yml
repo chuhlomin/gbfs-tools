@@ -6,10 +6,11 @@ jobs:
     working_directory: ~/project
     steps:
       - checkout
-      - run: go test ./...
-      - run: cd cmd/server; \
-          CGO_ENABLED=0 GOOS=linux go build -mod=readonly -a -installsuffix cgo -o server -ldflags \
-          "-X main.revision=$CIRCLE_BRANCH-${CIRCLE_SHA1:0:7}-$(date +%Y%m%d-%H:%M:%S)" main.go
+      - run:
+          command: |
+            cd cmd/server
+            CGO_ENABLED=0 GOOS=linux go build -mod=readonly -a -installsuffix cgo -o server -ldflags \
+              "-X main.revision=$CIRCLE_BRANCH-${CIRCLE_SHA1:0:7}-$(date +%Y%m%d-%H:%M:%S)" main.go
   cr:
     docker:
       - image: docker:20.10.1-git
