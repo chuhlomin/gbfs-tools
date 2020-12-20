@@ -2,10 +2,20 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.15
+      - image: golang:1.15
+    working_directory: ~/project
     steps:
       - checkout
       - run: go test ./...
-      - run: cd cmd/server
-      - run: CGO_ENABLED=0 GOOS=linux go build -mod=readonly -a -installsuffix cgo -o server -ldflags \
-          "-X main.revision=$DRONE_BRANCH-${DRONE_COMMIT:0:7}-$(date +%Y%m%d-%H:%M:%S)" main.go
+      - run: cd cmd/server; \
+          CGO_ENABLED=0 GOOS=linux go build -mod=readonly -a -installsuffix cgo -o server -ldflags \
+          "-X main.revision=$CIRCLE_BRANCH-${CIRCLE_SHA1:0:7}-$(date +%Y%m%d-%H:%M:%S)" main.go
+  cr:
+    docker:
+      - image: docker:20.10.1-git
+    working_directory: ~/project/cmd/server
+    steps:
+      - setup_remote_docker
+      - run: docker --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD cr.chuhlomin.com
+      - run: docker build -t ci.chuhlomin.com:circleci-${CIRCLE_SHA1} .
+      - run: docker push ci.chuhlomin.com:circleci-${CIRCLE_SHA1}
