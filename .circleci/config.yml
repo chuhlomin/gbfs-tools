@@ -28,8 +28,8 @@ jobs:
       - run:
           command: |
             cd ~/project/cmd/server
-            docker build -t cr.chuhlomin.com:circleci-${CIRCLE_SHA1} .
-      - run: docker push cr.chuhlomin.com:circleci-${CIRCLE_SHA1}
+            docker build -t cr.chuhlomin.com/gbfs-graphql:circleci-${CIRCLE_SHA1} .
+      - run: docker push cr.chuhlomin.com/gbfs-graphql:circleci-${CIRCLE_SHA1}
 
 workflows:
   build_and_cr:
