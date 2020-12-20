@@ -19,7 +19,7 @@ jobs:
   cr:
     docker:
       - image: docker:20.10.1-git
-    working_directory: ~/project/cmd/server
+    working_directory: ~/project
     steps:
       - setup_remote_docker
       - attach_workspace:
@@ -32,7 +32,7 @@ jobs:
       - run: docker push ci.chuhlomin.com:circleci-${CIRCLE_SHA1}
 
 workflows:
-  build_and_test:
+  build_and_cr:
     jobs:
       - build
       - cr:
