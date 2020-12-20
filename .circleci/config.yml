@@ -24,11 +24,11 @@ jobs:
       - setup_remote_docker
       - attach_workspace:
           at: .
+      - run: docker login --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD cr.chuhlomin.com
       - run:
           command: |
-            ls -la ~/project/cmd/server
-      - run: docker login --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD cr.chuhlomin.com
-      - run: docker build -t ci.chuhlomin.com:circleci-${CIRCLE_SHA1} .
+            cd ~/project/cmd/server
+            docker build -t ci.chuhlomin.com:circleci-${CIRCLE_SHA1} .
       - run: docker push ci.chuhlomin.com:circleci-${CIRCLE_SHA1}
 
 workflows:
