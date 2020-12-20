@@ -15,7 +15,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ./cmd/server
+            - .
   cr:
     docker:
       - image: docker:20.10.1-git
