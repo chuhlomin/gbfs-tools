@@ -1,0 +1,11 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.15
+    steps:
+      - checkout
+      - run: go test ./...
+      - run: cd cmd/server
+      - run: CGO_ENABLED=0 GOOS=linux go build -mod=readonly -a -installsuffix cgo -o server -ldflags \
+          "-X main.revision=$DRONE_BRANCH-${DRONE_COMMIT:0:7}-$(date +%Y%m%d-%H:%M:%S)" main.go
