@@ -22,6 +22,8 @@ jobs:
     working_directory: ~/project/cmd/server
     steps:
       - setup_remote_docker
+      - attach_workspace:
+          at: .
       - run:
           command: |
             ls -la ~/project/cmd/server
