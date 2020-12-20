@@ -20,3 +20,9 @@ jobs:
       - run: docker --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD cr.chuhlomin.com
       - run: docker build -t ci.chuhlomin.com:circleci-${CIRCLE_SHA1} .
       - run: docker push ci.chuhlomin.com:circleci-${CIRCLE_SHA1}
+
+workflows:
+  build_and_test:
+    jobs:
+      - build
+      - cr
