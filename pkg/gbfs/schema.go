@@ -198,7 +198,7 @@ func init() {
 
 					countryCode, filterByCountryCode := p.Args["countryCode"]
 
-					systems, err := GetSystems(gbfs.SystemsNABSA)
+					systems, err := GetSystems()
 					if err != nil {
 						return nil, err
 					}
@@ -224,7 +224,7 @@ func init() {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					systems, err := GetSystems(gbfs.SystemsNABSA)
+					systems, err := GetSystems()
 					if err != nil {
 						return nil, err
 					}

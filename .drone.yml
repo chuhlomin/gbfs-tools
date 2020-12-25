@@ -12,12 +12,16 @@ steps:
     image: golang:1.15
     environment:
       GOPROXY: https://athens.chuhlomin.com
+      CGO_ENABLED: "0"
+      GOOS: linux
+      GOARCH: amd64
     commands:
       - go test ./...
       - cd cmd/server
       - >
-        CGO_ENABLED=1 GOOS=linux go build -mod=readonly -a -installsuffix cgo -o server -ldflags \
-          "-X main.revision=$DRONE_BRANCH-${DRONE_COMMIT:0:7}-$(date +%Y%m%d-%H:%M:%S)" main.go
+        go build -mod=readonly -a -installsuffix cgo \
+          -ldflags="-w -s -X main.revision=$DRONE_BRANCH-${DRONE_COMMIT:0:7}-$(date +%Y%m%d-%H:%M:%S)" \
+          -o server main.go
     when:
       event:
         - push
@@ -50,7 +54,6 @@ steps:
       server: delta.chuhlomin.com
       username: drone
       sudo: true
-      debug: true
       docker_image: cr.chuhlomin.com/gbfs-graphql:${DRONE_COMMIT}
       docker_network: delta_default
       docker_network_alias: gbfs-graphql
@@ -62,7 +65,7 @@ steps:
       envs:
         HOST: "0.0.0.0"
         PORT: "8080"
-        DB_PATH: "/data/gbfs.sqlite3"
+        DB_PATH: "/data/bolt.db"
         CORS_ALLOW_ORIGIN: "bike.chuhlomin.com"
       mounts:
         - /etc/gbfs/:/data/:Z

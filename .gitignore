@@ -1,3 +1,6 @@
 .env
 .secrets
 cmd/server/server
+ignore
+dive.log
+bolt.db

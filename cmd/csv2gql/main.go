@@ -73,7 +73,7 @@ func run() error {
 		}
 
 		response, err := httpClient.Post(
-			"http://127.0.0.1:8080/graphql",
+			"http://127.0.0.1:8082/graphql",
 			"application/json",
 			bytes.NewReader(b),
 		)

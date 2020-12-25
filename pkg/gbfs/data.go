@@ -13,7 +13,7 @@ import (
 )
 
 var client *gbfs.Client
-var db *database.SQLite
+var db *database.Bolt
 
 // In-memory cache:
 var systems []structs.System
@@ -26,13 +26,15 @@ func init() {
 
 	client = gbfs.NewClient("github.com/chuhlomin/gbfs-tools", 30*time.Second)
 
-	if dbPath, found := os.LookupEnv("DB_PATH"); found {
-		var err error
-		log.Printf("Opening database %s", dbPath)
-		db, err = database.NewSQLite(dbPath)
-		if err != nil {
-			panic(err)
-		}
+	dbPath, found := os.LookupEnv("DB_PATH")
+	if !found {
+		// this case should be caught in main
+		panic("Missing required environment variable DB_PATH")
+	}
+	var err error
+	db, err = database.NewBolt(dbPath)
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -44,7 +46,7 @@ func DisableSystem(id string) error {
 	return db.DisableSystem(id)
 }
 
-func GetSystems(url string) ([]structs.System, error) {
+func GetSystems() ([]structs.System, error) {
 	var err error
 	if systems == nil {
 		systems, err = db.GetSystems()

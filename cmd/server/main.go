@@ -31,7 +31,7 @@ func main() {
 		Playground: true,
 	})
 
-	http.HandleFunc("/graphql", withCORS(h, c.AllowOrigin))
+	http.HandleFunc("/graphql", withLogging(withCORS(h, c.AllowOrigin)))
 
 	bind := c.Hostname + ":" + c.Port
 	log.Printf("Listening on %v", bind)
@@ -42,6 +42,13 @@ func withCORS(next http.Handler, allowOrigin string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Access-Control-Allow-Origin", allowOrigin)
 		w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+		next.ServeHTTP(w, r)
+	}
+}
+
+func withLogging(next http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s %s", r.Method, r.URL, r.RemoteAddr, r.UserAgent())
 		next.ServeHTTP(w, r)
 	}
 }
