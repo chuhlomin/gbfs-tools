@@ -61,6 +61,10 @@ steps:
       envs:
         HOST: "0.0.0.0"
         PORT: "8080"
+        DB_PATH: "/data/gbfs.sqlite3"
+        CORS_ALLOW_ORIGIN: "bike.chuhlomin.com"
+      mounts:
+        - /etc/gbfs/:/data/:z
     environment:
       SSH_KEY:
         from_secret: ssh_key
