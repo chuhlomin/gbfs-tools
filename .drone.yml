@@ -16,7 +16,7 @@ steps:
       - go test ./...
       - cd cmd/server
       - >
-        CGO_ENABLED=0 GOOS=linux go build -mod=readonly -a -installsuffix cgo -o server -ldflags \
+        CGO_ENABLED=1 GOOS=linux go build -mod=readonly -a -installsuffix cgo -o server -ldflags \
           "-X main.revision=$DRONE_BRANCH-${DRONE_COMMIT:0:7}-$(date +%Y%m%d-%H:%M:%S)" main.go
     when:
       event:
@@ -64,7 +64,7 @@ steps:
         DB_PATH: "/data/gbfs.sqlite3"
         CORS_ALLOW_ORIGIN: "bike.chuhlomin.com"
       mounts:
-        - /etc/gbfs/:/data/:z
+        - /etc/gbfs/:/data/:Z
     environment:
       SSH_KEY:
         from_secret: ssh_key
