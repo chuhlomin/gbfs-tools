@@ -45,11 +45,12 @@ steps:
         - main
 
   - name: deploy
-    image: cr.chuhlomin.com/docker-run:latest
+    image: cr.chuhlomin.com/docker-run:0.8
     settings:
       server: delta.chuhlomin.com
       username: drone
       sudo: true
+      debug: true
       docker_image: cr.chuhlomin.com/gbfs-graphql:${DRONE_COMMIT}
       docker_network: delta_default
       docker_network_alias: gbfs-graphql
