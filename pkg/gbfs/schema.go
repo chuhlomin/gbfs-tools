@@ -224,17 +224,7 @@ func init() {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					systems, err := GetSystems()
-					if err != nil {
-						return nil, err
-					}
-					for _, s := range systems {
-						if s.ID == p.Args["id"] {
-							return s, nil
-						}
-					}
-
-					return nil, fmt.Errorf("System %q not found", p.Args["id"])
+					return GetSystem(fmt.Sprintf("%v", p.Args["id"]))
 				},
 			},
 		},

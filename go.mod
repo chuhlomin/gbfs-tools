@@ -11,6 +11,7 @@ require (
 	github.com/graphql-go/relay v0.0.0-20171208134043-54350098cfe5
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.4
+	github.com/paulmach/go.geojson v1.4.0
 	github.com/pkg/errors v0.9.1
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb // indirect
 )

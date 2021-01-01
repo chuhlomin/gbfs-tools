@@ -1,12 +1,15 @@
 package gbfs
 
 import (
-	"errors"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/chuhlomin/gbfs-go"
+	"github.com/graphql-go/handler"
+	"github.com/pkg/errors"
 
 	"github.com/chuhlomin/gbfs-tools/pkg/database"
 	"github.com/chuhlomin/gbfs-tools/pkg/structs"
@@ -17,12 +20,16 @@ var db *database.Bolt
 
 // In-memory cache:
 var systems []structs.System
-var feeds map[string]*gbfs.LanguageFeeds                 // url → gbfs
-var systemInformation map[string]*gbfs.SystemInformation // url → system_information
+var urls map[string]string                                  // id → url
+var feeds map[string]*gbfs.LanguageFeeds                    // url → gbfs
+var systemInformation map[string]*gbfs.SystemInformation    // url → system_information
+var stationInformation map[string][]gbfs.StationInformation // url → []StationInformation
 
 func init() {
+	urls = map[string]string{}
 	feeds = map[string]*gbfs.LanguageFeeds{}
 	systemInformation = map[string]*gbfs.SystemInformation{}
+	stationInformation = map[string][]gbfs.StationInformation{}
 
 	client = gbfs.NewClient("github.com/chuhlomin/gbfs-tools", 30*time.Second)
 
@@ -38,6 +45,15 @@ func init() {
 	}
 }
 
+func Handler() http.Handler {
+	return handler.New(&handler.Config{
+		Schema:     &Schema,
+		Pretty:     true,
+		GraphiQL:   true,
+		Playground: true,
+	})
+}
+
 func AddSystem(system structs.System) error {
 	return db.AddSystem(system)
 }
@@ -50,9 +66,27 @@ func GetSystems() ([]structs.System, error) {
 	var err error
 	if systems == nil {
 		systems, err = db.GetSystems()
+		for _, s := range systems {
+			urls[s.ID] = s.AutoDiscoveryURL
+		}
 	}
 
 	return systems, err
+}
+
+func GetSystem(systemID string) (*structs.System, error) {
+	systems, err := GetSystems()
+	if err != nil {
+		return nil, errors.Wrap(err, "get systems")
+	}
+
+	for _, s := range systems {
+		if s.ID == systemID {
+			return &s, nil
+		}
+	}
+
+	return nil, fmt.Errorf("system %q not found", systemID)
 }
 
 func GetGBFS(url string) (*gbfs.LanguageFeeds, error) {

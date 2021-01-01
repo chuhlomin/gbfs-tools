@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/caarlos0/env/v6"
-	"github.com/graphql-go/handler"
 
 	"github.com/chuhlomin/gbfs-tools/pkg/gbfs"
 )
@@ -24,14 +23,8 @@ func main() {
 		log.Fatalf("ERROR: Failed to parse environment variables: %v", err)
 	}
 
-	h := handler.New(&handler.Config{
-		Schema:     &gbfs.Schema,
-		Pretty:     true,
-		GraphiQL:   true,
-		Playground: true,
-	})
-
-	http.HandleFunc("/graphql", withLogging(withCORS(h, c.AllowOrigin)))
+	http.HandleFunc("/graphql", withLogging(withCORS(gbfs.Handler(), c.AllowOrigin)))
+	http.HandleFunc("/geojson", withLogging(withCORS(gbfs.HandlerGeoJSON(), c.AllowOrigin)))
 
 	bind := c.Hostname + ":" + c.Port
 	log.Printf("Listening on %v", bind)
