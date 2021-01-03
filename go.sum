@@ -10,6 +10,10 @@ github.com/chuhlomin/gbfs-go v0.0.0-20201207001333-657a62cf6795 h1:8LQ3OvYC7IEfY
 github.com/chuhlomin/gbfs-go v0.0.0-20201207001333-657a62cf6795/go.mod h1:OaEcekpOVycvyvwAZ2M1NHL46wgb7KwWT58fQxDjXgU=
 github.com/chuhlomin/gbfs-go v0.0.0-20210101053417-7676703e29f8 h1:yGs8GjwhPR7TTkxSESE/SzHaw0ESTIg8xSebqkf7TnY=
 github.com/chuhlomin/gbfs-go v0.0.0-20210101053417-7676703e29f8/go.mod h1:OaEcekpOVycvyvwAZ2M1NHL46wgb7KwWT58fQxDjXgU=
+github.com/chuhlomin/gbfs-go v0.0.0-20210102232440-d9c543005cad h1:GqyR4CtjOO4+ANd68I43t9c6sGILGxHn071ytiJ78TI=
+github.com/chuhlomin/gbfs-go v0.0.0-20210102232440-d9c543005cad/go.mod h1:OaEcekpOVycvyvwAZ2M1NHL46wgb7KwWT58fQxDjXgU=
+github.com/chuhlomin/gbfs-go v0.0.0-20210102233802-92423892983a h1:P+83YyAm+cCY5+4+TsiyOrTEJpMARHruuYj1ImD29D0=
+github.com/chuhlomin/gbfs-go v0.0.0-20210102233802-92423892983a/go.mod h1:OaEcekpOVycvyvwAZ2M1NHL46wgb7KwWT58fQxDjXgU=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
