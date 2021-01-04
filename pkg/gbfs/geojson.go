@@ -72,12 +72,14 @@ func convertStationsToGeoJSON(stations []gbfs.StationInformation) *gj.FeatureCol
 				},
 			},
 			Properties: map[string]interface{}{
+				"id":          station.ID,
 				"name":        station.Name,
 				"address":     station.Address,
 				"crossStreet": station.CrossStreet,
 				"capacity":    station.Capacity,
 				"shortName":   station.ShortName,
 				"stationArea": station.StationArea,
+				"regionID":    station.RegionID,
 			},
 		}
 		fc.Features = append(fc.Features, &feature)
