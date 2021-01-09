@@ -3,11 +3,24 @@ package gbfs
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/chuhlomin/gbfs-go"
+	"github.com/liangyaopei/structmap"
 	gj "github.com/paulmach/go.geojson"
+
+	"github.com/chuhlomin/gbfs-go"
 )
+
+type stationProperties struct {
+	ID          gbfs.ID `map:"id,omitempty"`
+	Name        string  `map:"name,omitempty"`
+	Address     string  `map:"address,omitempty"`
+	CrossStreet string  `map:"crossStreet,omitempty"`
+	Capacity    int     `map:"capacity,omitempty"`
+	ShortName   string  `map:"shortName,omitempty"`
+	RegionID    gbfs.ID `map:"regionID,omitempty"`
+}
 
 func HandlerGeoJSON() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -63,6 +76,21 @@ func convertStationsToGeoJSON(stations []gbfs.StationInformation) *gj.FeatureCol
 	fc.Features = []*gj.Feature{}
 
 	for _, station := range stations {
+		props := stationProperties{
+			ID:          station.ID,
+			Name:        station.Name,
+			Address:     station.Address,
+			CrossStreet: station.CrossStreet,
+			Capacity:    station.Capacity,
+			ShortName:   station.ShortName,
+			RegionID:    station.RegionID,
+		}
+		m, err := structmap.StructToMap(&props, "map", "")
+		if err != nil {
+			log.Printf("Failed to convert struct to map: %v", err)
+			continue
+		}
+
 		feature := gj.Feature{
 			Geometry: &gj.Geometry{
 				Type: gj.GeometryPoint,
@@ -71,16 +99,7 @@ func convertStationsToGeoJSON(stations []gbfs.StationInformation) *gj.FeatureCol
 					station.Lat,
 				},
 			},
-			Properties: map[string]interface{}{
-				"id":          station.ID,
-				"name":        station.Name,
-				"address":     station.Address,
-				"crossStreet": station.CrossStreet,
-				"capacity":    station.Capacity,
-				"shortName":   station.ShortName,
-				"stationArea": station.StationArea,
-				"regionID":    station.RegionID,
-			},
+			Properties: m,
 		}
 		fc.Features = append(fc.Features, &feature)
 	}
