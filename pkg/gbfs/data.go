@@ -89,6 +89,35 @@ func GetSystem(systemID string) (*structs.System, error) {
 	return nil, fmt.Errorf("system %q not found", systemID)
 }
 
+func GetStationStatus(systemID string) ([]gbfs.StationStatus, error) {
+	system, err := GetSystem(systemID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "get system %s", systemID)
+	}
+
+	gbfsInfo, err := GetGBFS(system.AutoDiscoveryURL)
+	if err != nil {
+		return nil, errors.Wrapf(err, "get GBFS %s", system.AutoDiscoveryURL)
+	}
+
+	feeds, err := gbfsInfo.GetDataFeeds("en")
+	if err != nil {
+		return nil, errors.Wrap(err, "get data feeds")
+	}
+
+	feed, err := feeds.GetFeed("station_status")
+	if err != nil {
+		return nil, errors.Wrap(err, "get feed")
+	}
+
+	status, err := client.LoadStationStatus(feed.URL)
+	if err != nil {
+		return nil, errors.Wrapf(err, "load station statis %s", feed.URL)
+	}
+
+	return status.Data.Stations, nil
+}
+
 func GetGBFS(url string) (*gbfs.LanguageFeeds, error) {
 	var err error
 	if f, ok := feeds[url]; ok {

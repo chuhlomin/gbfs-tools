@@ -13,6 +13,7 @@ import (
 
 var systemInformationType *graphql.Object
 var systemType *graphql.Object
+var stationStatusType *graphql.Object
 
 var Schema graphql.Schema
 
@@ -177,6 +178,45 @@ func init() {
 		},
 	})
 
+	stationStatusType = graphql.NewObject(graphql.ObjectConfig{
+		Name:        "StationStatus",
+		Description: "Station status",
+		Fields: graphql.Fields{
+			"id": &graphql.Field{
+				Type:        graphql.String,
+				Description: "Identifier of a station",
+			},
+			"numBikesAvailable": &graphql.Field{
+				Type:        graphql.Int,
+				Description: "Number of functional vehicles physically at the station that may be offered for rental",
+			},
+			"numBikesDisabled": &graphql.Field{
+				Type:        graphql.Int,
+				Description: "Number of disabled vehicles of any type at the station",
+			},
+			"numDocksAvailable": &graphql.Field{
+				Type:        graphql.Int,
+				Description: "Number of functional docks physically at the station that are able to accept vehicles for return",
+			},
+			"isInstalled": &graphql.Field{
+				Type:        graphql.Boolean,
+				Description: "Is the station currently on the street?",
+			},
+			"isRenting": &graphql.Field{
+				Type:        graphql.Boolean,
+				Description: "Is the station currently renting vehicles?",
+			},
+			"isReturning": &graphql.Field{
+				Type:        graphql.Boolean,
+				Description: "Is the station accepting vehicle returns?",
+			},
+			"lastReported": &graphql.Field{
+				Type:        graphql.DateTime,
+				Description: "The last time this station reported its status to the operator's backend",
+			},
+		},
+	})
+
 	systemsConnectionDefinition := relay.ConnectionDefinitions(relay.ConnectionConfig{
 		Name:     "System",
 		NodeType: systemType,
@@ -185,6 +225,17 @@ func init() {
 	systemsArgs := relay.ConnectionArgs
 	systemsArgs["countryCode"] = &graphql.ArgumentConfig{
 		Type: graphql.String,
+	}
+
+	stationStatusConnectionDefinition := relay.ConnectionDefinitions(relay.ConnectionConfig{
+		Name:     "StationStatus",
+		NodeType: stationStatusType,
+	})
+
+	stationStatusArgs := relay.ConnectionArgs
+	stationStatusArgs["systemID"] = &graphql.ArgumentConfig{
+		Type:        graphql.String,
+		Description: "System ID",
 	}
 
 	queryType := graphql.NewObject(graphql.ObjectConfig{
@@ -227,6 +278,57 @@ func init() {
 					return GetSystem(fmt.Sprintf("%v", p.Args["id"]))
 				},
 			},
+			"stationStatus": &graphql.Field{
+				Type: stationStatusConnectionDefinition.ConnectionType,
+				Args: stationStatusArgs,
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					args := relay.NewConnectionArguments(p.Args)
+
+					if _, ok := p.Args["systemID"]; !ok {
+						return nil, fmt.Errorf("Missing systemID argument")
+					}
+					systemID := fmt.Sprintf("%v", p.Args["systemID"])
+
+					stations, err := GetStationStatus(systemID)
+					if err != nil {
+						return nil, err
+					}
+
+					var result []interface{}
+					for i := range stations {
+						result = append(result, stations[i])
+					}
+
+					return relay.ConnectionFromArray(result, args), nil
+				},
+			},
+			// "system_information": &graphql.Field{
+			// 	Type: systemInformationType,
+			// 	Args: graphql.FieldConfigArgument{
+			// 		"id": &graphql.ArgumentConfig{
+			// 			Type:        graphql.String,
+			// 			Description: "System ID",
+			// 		},
+			// 		"lang": &graphql.ArgumentConfig{
+			// 			Type:        graphql.String,
+			// 			Description: "Language",
+			// 		},
+			// 	},
+			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			// 		system, err := GetSystem(p.Args["id"])
+			// 		systems, err := GetSystemInformation()
+			// 		if err != nil {
+			// 			return nil, err
+			// 		}
+			// 		for _, s := range systems {
+			// 			if s.ID == p.Args["id"] {
+			// 				return s, nil
+			// 			}
+			// 		}
+
+			// 		return nil, fmt.Errorf("System %q not found", p.Args["id"])
+			// 	},
+			// },
 		},
 	})
 
