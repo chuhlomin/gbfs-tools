@@ -78,6 +78,18 @@ steps:
       branch:
         - main
 
+  - name: sonarqube
+    image: aosapps/drone-sonar-plugin
+    settings:
+      sonar_host: sonarqube.chuhlomin.com
+      sonar_token:
+        from_secret: sonar_token
+    when:
+      event:
+        - push
+      branch:
+        - main
+
 trigger:
   event:
     - push
