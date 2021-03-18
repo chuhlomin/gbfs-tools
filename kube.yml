@@ -22,7 +22,7 @@ spec:
         - name: busnj-console
           image: {{ .image }}
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           volumeMounts:
             - name: db
               mountPath: /db
@@ -30,7 +30,7 @@ spec:
             - name: HOSTNAME
               value: "0.0.0.0"
             - name: PORT
-              value: "80"
+              value: "8080"
             - name: CORS_ALLOW_ORIGIN
               value: "{{ .cors_allow_origin }}"
             - name: DB_PATH
@@ -49,7 +49,7 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80
+      targetPort: 8080
 ---
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
