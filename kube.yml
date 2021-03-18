@@ -27,7 +27,7 @@ spec:
             - name: db
               mountPath: /db
           env:
-            - name: HOST
+            - name: HOSTNAME
               value: "0.0.0.0"
             - name: PORT
               value: "80"
