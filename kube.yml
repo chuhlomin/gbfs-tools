@@ -15,11 +15,17 @@ spec:
       labels:
         app: {{ .app }}
     spec:
+      volumes:
+        - name: db
+          emptyDir: {}
       containers:
         - name: busnj-console
           image: {{ .image }}
           ports:
             - containerPort: 80
+          volumeMounts:
+            - name: db
+              mountPath: /db
           env:
             - name: HOST
               value: "0.0.0.0"
@@ -27,6 +33,8 @@ spec:
               value: "80"
             - name: CORS_ALLOW_ORIGIN
               value: "{{ .cors_allow_origin }}"
+            - name: DB_PATH
+              value: "/db/bolt.db"
       imagePullSecrets:
         - name: regcred
 ---
