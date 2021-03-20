@@ -18,6 +18,9 @@ spec:
       volumes:
         - name: db
           emptyDir: {}
+      livenessProbe:
+        httpGet:
+          path: /healthz
       containers:
         - name: busnj-console
           image: {{ .image }}

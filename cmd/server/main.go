@@ -23,12 +23,17 @@ func main() {
 		log.Fatalf("ERROR: Failed to parse environment variables: %v", err)
 	}
 
+	http.HandleFunc("/healthz", healthz)
 	http.HandleFunc("/graphql", withLogging(withCORS(gbfs.Handler(), c.AllowOrigin)))
 	http.HandleFunc("/geojson", withLogging(withCORS(gbfs.HandlerGeoJSON(), c.AllowOrigin)))
 
 	bind := c.Hostname + ":" + c.Port
 	log.Printf("Listening on %v", bind)
 	log.Fatal(http.ListenAndServe(bind, nil))
+}
+
+func healthz(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte("OK"))
 }
 
 func withCORS(next http.Handler, allowOrigin string) http.HandlerFunc {
