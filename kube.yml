@@ -26,7 +26,7 @@ spec:
           volumeMounts:
             - name: db
               mountPath: /db
-          livenessProbe:
+          readinessProbe:
             httpGet:
               path: /healthz
               port: 8080
