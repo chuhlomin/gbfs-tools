@@ -10,10 +10,10 @@ import (
 )
 
 type config struct {
-	Hostname     string `env:"HOSTNAME" envDefault:"127.0.0.1"`
-	Port         string `env:"PORT" envDefault:"8082"`
-	AllowOrigin  string `env:"CORS_ALLOW_ORIGIN" envDefault:"*"`
-	DatabasePath string `env:"DB_PATH,required"` // used in pkg/gbfs/data.go
+	Hostname       string `env:"HOSTNAME" envDefault:"127.0.0.1"`
+	Port           string `env:"PORT" envDefault:"8082"`
+	AllowOrigin    string `env:"CORS_ALLOW_ORIGIN" envDefault:"*"`
+	SystemsCSVPath string `env:"SYSTEMS_CSV_PATH"` // used in pkg/gbfs/data.go
 }
 
 func main() {

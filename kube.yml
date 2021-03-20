@@ -33,8 +33,8 @@ spec:
               value: "8080"
             - name: CORS_ALLOW_ORIGIN
               value: "{{ .cors_allow_origin }}"
-            - name: DB_PATH
-              value: "/db/bolt.db"
+            - name: SYSTEMS_CSV_PATH
+              value: "/systems.csv"
       imagePullSecrets:
         - name: regcred
 ---

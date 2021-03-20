@@ -1,7 +1,9 @@
 package gbfs
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -11,12 +13,10 @@ import (
 	"github.com/graphql-go/handler"
 	"github.com/pkg/errors"
 
-	"github.com/chuhlomin/gbfs-tools/pkg/database"
 	"github.com/chuhlomin/gbfs-tools/pkg/structs"
 )
 
 var client *gbfs.Client
-var db *database.Bolt
 
 // In-memory cache:
 var systems []structs.System
@@ -33,16 +33,21 @@ func init() {
 
 	client = gbfs.NewClient("github.com/chuhlomin/gbfs-tools", 30*time.Second)
 
-	dbPath, found := os.LookupEnv("DB_PATH")
+	systemCSVPath, found := os.LookupEnv("SYSTEMS_CSV_PATH")
 	if !found {
 		// this case should be caught in main
-		panic("Missing required environment variable DB_PATH")
+		panic("Missing required environment variable SYSTEMS_CSV_PATH")
 	}
-	var err error
-	db, err = database.NewBolt(dbPath)
+
+	f, err := ioutil.ReadFile(systemCSVPath)
 	if err != nil {
-		panic(err)
+		panic("Failed to read file at SYSTEMS_CSV_PATH")
 	}
+	systemsRaw, err := gbfs.ParseSystemsCSV(bytes.NewReader(f))
+	if err != nil {
+		panic("Failed to parse systems CSV at SYSTEMS_CSV_PATH")
+	}
+	populateSystems(systemsRaw)
 }
 
 func Handler() http.Handler {
@@ -54,24 +59,8 @@ func Handler() http.Handler {
 	})
 }
 
-func AddSystem(system structs.System) error {
-	return db.AddSystem(system)
-}
-
-func DisableSystem(id string) error {
-	return db.DisableSystem(id)
-}
-
 func GetSystems() ([]structs.System, error) {
-	var err error
-	if systems == nil {
-		systems, err = db.GetSystems()
-		for _, s := range systems {
-			urls[s.ID] = s.AutoDiscoveryURL
-		}
-	}
-
-	return systems, err
+	return systems, nil
 }
 
 func GetSystem(systemID string) (*structs.System, error) {
@@ -152,4 +141,19 @@ func GetSystemInformation(url string) (*gbfs.SystemInformation, error) {
 
 	systemInformation[url] = &resp.Data
 	return &resp.Data, nil
+}
+
+func populateSystems(raw []gbfs.System) {
+	for _, s := range raw {
+		systems = append(systems, structs.System{
+			ID:               s.ID,
+			CountryCode:      s.CountryCode,
+			Name:             s.Name,
+			Location:         s.Location,
+			URL:              s.URL,
+			AutoDiscoveryURL: s.AutoDiscoveryURL,
+			IsEnabled:        true,
+		})
+		urls[s.ID] = s.AutoDiscoveryURL
+	}
 }

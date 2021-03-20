@@ -16,11 +16,15 @@ RUN adduser \
     -u "${UID}" \
     "${USER}"
 
+ADD https://github.com/NABSA/gbfs/raw/master/systems.csv /systems.csv
+RUN chmod +r /systems.csv
+
 FROM scratch
 
 COPY --from=alpine /etc/passwd /etc/passwd
 COPY --from=alpine /etc/group /etc/group
 COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=alpine /systems.csv /systems.csv
 
 # Use an unprivileged user
 USER appuser:appuser

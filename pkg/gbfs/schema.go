@@ -120,8 +120,8 @@ func init() {
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					source := p.Source
 					switch t := source.(type) {
-					case gbfs.System:
-						system := source.(gbfs.System)
+					case structs.System:
+						system := source.(structs.System)
 						lf, err := GetGBFS(system.AutoDiscoveryURL)
 						if err != nil {
 							return nil, fmt.Errorf("Failed to get GBFS from %q: %v", system.AutoDiscoveryURL, err)
@@ -332,70 +332,9 @@ func init() {
 		},
 	})
 
-	mutationType := graphql.NewObject(graphql.ObjectConfig{
-		Name: "Mutation",
-		Fields: graphql.Fields{
-			"addSystem": &graphql.Field{
-				Type: systemType,
-				Args: graphql.FieldConfigArgument{
-					"id": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"countryCode": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"name": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"location": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"url": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"autoDiscoveryUrl": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-				},
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					id, _ := params.Args["id"].(string)
-					name, _ := params.Args["name"].(string)
-					countryCode, _ := params.Args["countryCode"].(string)
-					location, _ := params.Args["location"].(string)
-					url, _ := params.Args["url"].(string)
-					autoDiscoveryURL, _ := params.Args["autoDiscoveryUrl"].(string)
-
-					system := structs.System{
-						ID:               id,
-						Name:             name,
-						CountryCode:      countryCode,
-						Location:         location,
-						URL:              url,
-						AutoDiscoveryURL: autoDiscoveryURL,
-					}
-					err := AddSystem(system)
-					return system, err
-				},
-			},
-			"disableSystem": &graphql.Field{
-				Type: systemType,
-				Args: graphql.FieldConfigArgument{
-					"id": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-				},
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					id, _ := params.Args["id"].(string)
-					err := DisableSystem(id)
-					return nil, err
-				},
-			},
-		},
-	})
 	var err error
 	Schema, err = graphql.NewSchema(graphql.SchemaConfig{
-		Query:    queryType,
-		Mutation: mutationType,
+		Query: queryType,
 	})
 	if err != nil {
 		panic(err)
