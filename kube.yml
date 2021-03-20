@@ -29,6 +29,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
+              port: 8080
           env:
             - name: HOSTNAME
               value: "0.0.0.0"
