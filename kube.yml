@@ -18,9 +18,6 @@ spec:
       volumes:
         - name: db
           emptyDir: {}
-      livenessProbe:
-        httpGet:
-          path: /healthz
       containers:
         - name: busnj-console
           image: {{ .image }}
@@ -29,6 +26,9 @@ spec:
           volumeMounts:
             - name: db
               mountPath: /db
+          livenessProbe:
+            httpGet:
+              path: /healthz
           env:
             - name: HOSTNAME
               value: "0.0.0.0"
