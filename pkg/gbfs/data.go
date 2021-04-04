@@ -48,6 +48,7 @@ func init() {
 		panic("Failed to parse systems CSV at SYSTEMS_CSV_PATH")
 	}
 	populateSystems(systemsRaw)
+	go fetchSystemsFeeds()
 }
 
 func Handler() http.Handler {
@@ -155,5 +156,15 @@ func populateSystems(raw []gbfs.System) {
 			IsEnabled:        true,
 		})
 		urls[s.ID] = s.AutoDiscoveryURL
+	}
+}
+
+func fetchSystemsFeeds() {
+	for systemID, gbfsURL := range urls {
+		_, err := GetGBFS(gbfsURL)
+		if err != nil {
+			log.Printf("[ERROR] Failed to pre-fetch system feed for %q, URL %s: %v", systemID, gbfsURL, err)
+		}
+		time.Sleep(2 * time.Second)
 	}
 }

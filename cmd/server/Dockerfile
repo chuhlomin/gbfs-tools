@@ -16,7 +16,7 @@ RUN adduser \
     -u "${UID}" \
     "${USER}"
 
-ADD https://github.com/NABSA/gbfs/raw/master/systems.csv /systems.csv
+ADD https://raw.githubusercontent.com/NABSA/gbfs/master/systems.csv /systems.csv
 RUN chmod +r /systems.csv
 
 FROM scratch

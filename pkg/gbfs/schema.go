@@ -13,6 +13,7 @@ import (
 
 var systemInformationType *graphql.Object
 var systemType *graphql.Object
+var feedType *graphql.Object
 var stationStatusType *graphql.Object
 
 var Schema graphql.Schema
@@ -85,6 +86,25 @@ func init() {
 		},
 	})
 
+	feedType = graphql.NewObject(graphql.ObjectConfig{
+		Name:        "Feed",
+		Description: "GBFS Feed",
+		Fields: graphql.Fields{
+			"name": &graphql.Field{
+				Type:        graphql.String,
+				Description: "Name",
+			},
+			"url": &graphql.Field{
+				Type:        graphql.String,
+				Description: "URL",
+			},
+			"language": &graphql.Field{
+				Type:        graphql.String,
+				Description: "Language",
+			},
+		},
+	})
+
 	systemType = graphql.NewObject(graphql.ObjectConfig{
 		Name:        "System",
 		Description: "Bikeshare system",
@@ -138,38 +158,33 @@ func init() {
 					}
 				},
 			},
-			"information": &graphql.Field{
-				Type:        systemInformationType,
-				Description: "System information",
+			"feeds": &graphql.Field{
+				Type:        &graphql.List{OfType: feedType},
+				Description: "SystemFeeds",
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					source := p.Source
 					switch t := source.(type) {
 					case structs.System:
 						system := source.(structs.System)
+
 						lf, err := GetGBFS(system.AutoDiscoveryURL)
 						if err != nil {
 							return nil, errors.Wrapf(err, "Failed to get GBFS from %q", system.AutoDiscoveryURL)
 						}
 
-						feeds, ok := (*lf)["en"]
-						if !ok {
-							for _, feeds = range *lf {
-								break
+						var result []structs.Feed
+
+						for lang, feeds := range *lf {
+							for _, feed := range feeds.Feeds {
+								result = append(result, structs.Feed{
+									URL:      feed.URL,
+									Name:     feed.Name,
+									Language: lang,
+								})
 							}
 						}
 
-						feed, err := findFeed(feeds.Feeds, "system_information")
-						if err != nil {
-							return nil, err
-						}
-
-						result, err := GetSystemInformation(feed.URL)
-						if err != nil {
-							return nil, err
-						}
-
 						return result, nil
-
 					default:
 						return nil, fmt.Errorf("Unexpected type %T in source: %v", t, p.Source)
 					}
