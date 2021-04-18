@@ -23,6 +23,13 @@ spec:
           image: {{ .image }}
           ports:
             - containerPort: 8080
+          resources:
+            limits:
+              cpu: 20m
+              memory: 100Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
           volumeMounts:
             - name: db
               mountPath: /db
