@@ -38,10 +38,10 @@ spec:
               value: "0.0.0.0"
             - name: PORT
               value: "8080"
+            - name: REDIS_ADDR
+              value: redis:6379
             - name: CORS_ALLOW_ORIGIN
               value: "{{ .cors_allow_origin }}"
-            - name: SYSTEMS_CSV_PATH
-              value: "/systems.csv"
       imagePullSecrets:
         - name: regcred
 ---

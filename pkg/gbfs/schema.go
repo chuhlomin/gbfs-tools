@@ -6,7 +6,6 @@ import (
 	"github.com/chuhlomin/gbfs-go"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/relay"
-	"github.com/pkg/errors"
 
 	"github.com/chuhlomin/gbfs-tools/pkg/structs"
 )
@@ -142,16 +141,7 @@ func init() {
 					switch t := source.(type) {
 					case structs.System:
 						system := source.(structs.System)
-						lf, err := GetGBFS(system.AutoDiscoveryURL)
-						if err != nil {
-							return nil, fmt.Errorf("Failed to get GBFS from %q: %v", system.AutoDiscoveryURL, err)
-						}
-
-						var result []string
-						for l := range *lf {
-							result = append(result, l)
-						}
-						return result, nil
+						return redisClient.GetFeedsLanguages(system.ID)
 
 					default:
 						return nil, fmt.Errorf("Unexpected type %T in source: %v", t, p.Source)
@@ -166,25 +156,7 @@ func init() {
 					switch t := source.(type) {
 					case structs.System:
 						system := source.(structs.System)
-
-						lf, err := GetGBFS(system.AutoDiscoveryURL)
-						if err != nil {
-							return nil, errors.Wrapf(err, "Failed to get GBFS from %q", system.AutoDiscoveryURL)
-						}
-
-						var result []structs.Feed
-
-						for lang, feeds := range *lf {
-							for _, feed := range feeds.Feeds {
-								result = append(result, structs.Feed{
-									URL:      feed.URL,
-									Name:     feed.Name,
-									Language: lang,
-								})
-							}
-						}
-
-						return result, nil
+						return redisClient.GetFeeds(system.ID)
 					default:
 						return nil, fmt.Errorf("Unexpected type %T in source: %v", t, p.Source)
 					}

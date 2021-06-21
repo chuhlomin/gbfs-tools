@@ -1,6 +1,12 @@
 .env
+*.env
 .secrets
-cmd/server/server
+.scannerwork
 ignore
 dive.log
 bolt.db
+systems.csv
+cmd/server/server
+cmd/server/html
+cmd/regions
+cmd/scanner

@@ -25,35 +25,15 @@ type stationProperties struct {
 func HandlerGeoJSON() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		serviceID := r.URL.Query().Get("systemID")
-		s, err := GetSystem(serviceID)
+		url, err := redisClient.GetFeedURL(serviceID, "en", "station_information")
 		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to get system %q: %v", serviceID, err), 500)
+			http.Error(w, fmt.Sprintf("Failed to get system %q feed URL: %v", serviceID, err), 500)
 			return
 		}
 
-		lf, err := GetGBFS(s.AutoDiscoveryURL)
+		si, err := client.LoadStationInformation(url)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to get feeds %q: %v", s.AutoDiscoveryURL, err), 500)
-			return
-		}
-
-		lang := "en"
-		f, err := lf.GetDataFeeds(lang)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to get feed for %q: %v", lang, err), 500)
-			return
-		}
-
-		feedName := "station_information"
-		feed, err := f.GetFeed(feedName)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to get feed %q: %v", feedName, err), 500)
-			return
-		}
-
-		si, err := client.LoadStationInformation(feed.URL)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to get station information %q: %v", feed.URL, err), 500)
+			http.Error(w, fmt.Sprintf("Failed to get station information %q: %v", url, err), 500)
 			return
 		}
 

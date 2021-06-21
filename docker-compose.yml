@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    environment:
+      - HOSTNAME=0.0.0.0
+      - PORT=8082
+      - REDIS_ADDR=redis:6379
+      - REDIS_AUTH=sOmE_sEcUrE_pAsS
+    ports:
+      - 127.0.0.1:8082:8082
+    links:
+      - redis
+
+  writer:
+    build:
+      context: .
+      dockerfile: Dockerfile.writer
+    environment:
+      - SYSTEMS_CSV_URL=https://raw.githubusercontent.com/NABSA/gbfs/master/systems.csv
+      - REDIS_ADDR=redis:6379
+      - REDIS_AUTH=sOmE_sEcUrE_pAsS
+    links:
+      - redis
+
+  redis:
+    image: redis:6.2.4-alpine
+    command: redis-server --requirepass sOmE_sEcUrE_pAsS
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    volumes:
+      - redis-data:/var/lib/redis
+
+volumes:
+  redis-data: {}
