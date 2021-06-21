@@ -141,7 +141,7 @@ func init() {
 					switch t := source.(type) {
 					case structs.System:
 						system := source.(structs.System)
-						return redisClient.GetFeedsLanguages(system.ID)
+						return RedisClient.GetFeedsLanguages(system.ID)
 
 					default:
 						return nil, fmt.Errorf("Unexpected type %T in source: %v", t, p.Source)
@@ -156,7 +156,7 @@ func init() {
 					switch t := source.(type) {
 					case structs.System:
 						system := source.(structs.System)
-						return redisClient.GetFeeds(system.ID)
+						return RedisClient.GetFeeds(system.ID)
 					default:
 						return nil, fmt.Errorf("Unexpected type %T in source: %v", t, p.Source)
 					}

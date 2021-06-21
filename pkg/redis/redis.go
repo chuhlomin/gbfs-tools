@@ -141,6 +141,22 @@ func (c *Client) WriteFeeds(systemID, language string, feeds []gbfs.Feed) error 
 func (c *Client) GetFeedURL(systemID, feedName, language string) (string, error) {
 	var url string
 	err := c.client.Do(c.ctx, radix.Cmd(&url, "GET", fmt.Sprintf("feed:%s:%s:%s", systemID, feedName, language)))
+	if err != nil {
+		return "", errors.Wrap(err, "GET")
+	}
+
+	if url == "" { // fallback to any other language
+		var keys []string
+		err = c.client.Do(c.ctx, radix.Cmd(&keys, "KEYS", fmt.Sprintf("feed:%s:%s:*", systemID, feedName)))
+		if err != nil {
+			return "", errors.Wrap(err, "KEYS")
+		}
+
+		if len(keys) > 0 {
+			err = c.client.Do(c.ctx, radix.Cmd(&url, "GET", keys[0]))
+		}
+	}
+
 	return url, err
 }
 

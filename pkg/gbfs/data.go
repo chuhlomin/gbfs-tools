@@ -11,13 +11,10 @@ import (
 	"github.com/chuhlomin/gbfs-tools/pkg/structs"
 )
 
-var client *gbfs.Client
-var redisClient *redis.Client
+var Client *gbfs.Client
+var RedisClient *redis.Client
 
-func Handler(gc *gbfs.Client, rc *redis.Client) http.Handler {
-	client = gc
-	redisClient = rc
-
+func Handler() http.Handler {
 	return handler.New(&handler.Config{
 		Schema:     &Schema,
 		Pretty:     true,
@@ -28,7 +25,7 @@ func Handler(gc *gbfs.Client, rc *redis.Client) http.Handler {
 
 func GetSystems() ([]structs.System, error) {
 	var systems []structs.System
-	systemsIDs, err := redisClient.GetSystemsIDs()
+	systemsIDs, err := RedisClient.GetSystemsIDs()
 	if err != nil {
 		return nil, errors.Wrap(err, "get systems IDs")
 	}
@@ -44,16 +41,16 @@ func GetSystems() ([]structs.System, error) {
 }
 
 func GetSystem(systemID string) (*structs.System, error) {
-	return redisClient.GetSystem(systemID)
+	return RedisClient.GetSystem(systemID)
 }
 
 func GetStationStatus(systemID string) ([]gbfs.StationStatus, error) {
-	url, err := redisClient.GetFeedURL(systemID, "station_status", "en")
+	url, err := RedisClient.GetFeedURL(systemID, "station_status", "en")
 	if err != nil {
 		return nil, errors.Wrapf(err, "get station status for %q", systemID)
 	}
 
-	status, err := client.LoadStationStatus(url)
+	status, err := Client.LoadStationStatus(url)
 	if err != nil {
 		return nil, errors.Wrapf(err, "load station statis %q", url)
 	}

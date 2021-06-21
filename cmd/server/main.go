@@ -48,10 +48,11 @@ func run() error {
 		return errors.Wrap(err, "create Redis client")
 	}
 
-	client := g.NewClient("github.com/chuhlomin/gbfs-tools", 30*time.Second)
+	gbfs.Client = g.NewClient("github.com/chuhlomin/gbfs-tools", 30*time.Second)
+	gbfs.RedisClient = redisClient
 
 	http.HandleFunc("/", ok)
-	http.HandleFunc("/graphql", withLogging(withCORS(gbfs.Handler(client, redisClient), c.AllowOrigin)))
+	http.HandleFunc("/graphql", withLogging(withCORS(gbfs.Handler(), c.AllowOrigin)))
 	http.HandleFunc("/geojson", withLogging(withCORS(gbfs.HandlerGeoJSON(), c.AllowOrigin)))
 
 	bind := c.Hostname + ":" + c.Port

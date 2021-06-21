@@ -25,13 +25,13 @@ type stationProperties struct {
 func HandlerGeoJSON() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		serviceID := r.URL.Query().Get("systemID")
-		url, err := redisClient.GetFeedURL(serviceID, "en", "station_information")
+		url, err := RedisClient.GetFeedURL(serviceID, "station_information", "en")
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Failed to get system %q feed URL: %v", serviceID, err), 500)
 			return
 		}
 
-		si, err := client.LoadStationInformation(url)
+		si, err := Client.LoadStationInformation(url)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Failed to get station information %q: %v", url, err), 500)
 			return
