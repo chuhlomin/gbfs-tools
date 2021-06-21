@@ -56,7 +56,8 @@ jobs:
       - name: Build and push to CR
         uses: docker/build-push-action@v2
         with:
-          context: ./cmd/server
+          context: .
+          file: Dockerfile.server
           push: true
           tags: |
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
