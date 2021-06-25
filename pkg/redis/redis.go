@@ -166,22 +166,25 @@ func (c *Client) GetFeeds(systemID string) ([]structs.Feed, error) {
 		return nil, errors.Wrapf(err, "keys for %q feeds", systemID)
 	}
 
+	if len(keys) == 0 {
+		return nil, nil
+	}
+
 	result := []structs.Feed{}
 
-	for _, key := range keys {
-		_, feedName, language := splitFeedKey(key)
+	var urls []string
+	if err := c.client.Do(c.ctx, radix.Cmd(&urls, "MGET", keys...)); err != nil {
+		return nil, errors.Wrapf(err, "mget for %q feeds", systemID)
+	}
 
-		var url string
-		err := c.client.Do(c.ctx, radix.Cmd(&url, "GET", key))
-		if err != nil {
-			return nil, err
-		}
+	for i, key := range keys {
+		_, feedName, language := splitFeedKey(key)
 
 		result = append(
 			result,
 			structs.Feed{
 				Name:     feedName,
-				URL:      url,
+				URL:      urls[i],
 				Language: language,
 			},
 		)
