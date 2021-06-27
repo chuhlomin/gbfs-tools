@@ -14,7 +14,7 @@ import (
 var Client *gbfs.Client
 var RedisClient *redis.Client
 
-func Handler() http.Handler {
+func HandlerGraphQL() http.Handler {
 	return handler.New(&handler.Config{
 		Schema:     &Schema,
 		Pretty:     true,
@@ -23,20 +23,13 @@ func Handler() http.Handler {
 	})
 }
 
-func GetSystems() ([]structs.System, error) {
-	var systems []structs.System
-	systemsIDs, err := RedisClient.GetSystemsIDs()
+func GetSystems() ([]*structs.System, error) {
+	var systems []*structs.System
+	systems, err := RedisClient.GetSystems()
 	if err != nil {
-		return nil, errors.Wrap(err, "get systems IDs")
+		return nil, errors.Wrap(err, "get systems")
 	}
 
-	for _, id := range systemsIDs {
-		system, err := GetSystem(id)
-		if err != nil {
-			return nil, errors.Wrapf(err, "get system %q", id)
-		}
-		systems = append(systems, *system)
-	}
 	return systems, nil
 }
 

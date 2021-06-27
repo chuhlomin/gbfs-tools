@@ -46,78 +46,61 @@ func NewClient(ctx context.Context, network, addr, auth string) (*Client, error)
 }
 
 func (c *Client) WriteSystem(system gbfs.System) error {
-	return c.client.Do(
-		c.ctx,
-		radix.Cmd(
-			nil,
-			"HMSET",
-			fmt.Sprintf("system:%s", system.ID),
-			"id", system.ID,
-			"name", system.Name,
-			"url", system.AutoDiscoveryURL,
-			"www", system.URL,
-			"cc", system.CountryCode,
-			"location", system.Location,
-		),
-	)
+	return c.client.Do(c.ctx, radix.Cmd(nil, "SET", "system:"+system.ID, packSystem(system)))
 }
 
-func (c *Client) GetSystem(systemID string) (*structs.System, error) {
-	var vv []string
-	err := c.client.Do(c.ctx, radix.Cmd(&vv, "HGETALL", fmt.Sprintf("system:%s", systemID)))
-	if err != nil {
-		return nil, errors.Wrapf(err, "get system %q", systemID)
-	}
-
-	system := structs.System{}
-
-	for i := 0; i < len(vv); i++ {
-		key := vv[i]
-		value := vv[i+1]
-
-		switch key {
-		case "id":
-			system.ID = value
-		case "name":
-			system.Name = value
-		case "url":
-			system.AutoDiscoveryURL = value
-		case "www":
-			system.URL = value
-		case "cc":
-			system.CountryCode = value
-		case "location":
-			system.Location = value
-		}
-		i++
-	}
-
-	return &system, nil
-}
-
-func (c *Client) GetSystemURL(systemID string) (string, error) {
-	var v string
-	err := c.client.Do(c.ctx, radix.Cmd(&v, "HGET", fmt.Sprintf("system:%s", systemID), "url"))
-	if err != nil {
-		return "", errors.Wrapf(err, "get system URL %q", systemID)
-	}
-
-	return v, nil
-}
-
-func (c *Client) GetSystemsIDs() ([]string, error) {
-	var result, keys []string
-
-	err := c.client.Do(c.ctx, radix.Cmd(&keys, "KEYS", "system:*"))
-	if err != nil {
+func (c *Client) GetSystems() ([]*structs.System, error) {
+	var keys []string
+	if err := c.client.Do(c.ctx, radix.Cmd(&keys, "KEYS", "system:*")); err != nil {
 		return nil, errors.Wrap(err, "get systems keys")
 	}
 
-	for _, key := range keys {
-		result = append(result, key[len("system:"):])
+	var vals []string
+	if err := c.client.Do(c.ctx, radix.Cmd(&vals, "MGET", keys...)); err != nil {
+		return nil, errors.Wrap(err, "get systems keys")
 	}
 
-	return result, nil
+	systems := []*structs.System{}
+	for _, val := range vals {
+		systems = append(systems, unpackSystem(val))
+	}
+
+	return systems, nil
+}
+
+func (c *Client) GetSystem(systemID string) (*structs.System, error) {
+	var v string
+	if err := c.client.Do(c.ctx, radix.Cmd(&v, "GET", "system:"+systemID)); err != nil {
+		return nil, errors.Wrapf(err, "get system %q", systemID)
+	}
+
+	return unpackSystem(v), nil
+}
+
+func packSystem(system gbfs.System) string {
+	return strings.Join(
+		[]string{
+			system.ID,
+			system.Name,
+			system.AutoDiscoveryURL,
+			system.URL,
+			system.CountryCode,
+			system.Location,
+		},
+		"\n",
+	)
+}
+
+func unpackSystem(val string) *structs.System {
+	vv := strings.Split(val, "\n")
+	return &structs.System{
+		ID:               vv[0],
+		Name:             vv[1],
+		AutoDiscoveryURL: vv[2],
+		URL:              vv[3],
+		CountryCode:      vv[4],
+		Location:         vv[5],
+	}
 }
 
 func (c *Client) WriteFeeds(systemID, language string, feeds []gbfs.Feed) error {

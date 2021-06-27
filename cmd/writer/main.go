@@ -15,6 +15,8 @@ import (
 
 type config struct {
 	SystemsURL   string        `env:"SYSTEMS_CSV_URL" envDefault:"https://raw.githubusercontent.com/NABSA/gbfs/master/systems.csv"`
+	WriteSystems bool          `env:"WRITE_SYSTEMS" envDefault:"true"`
+	WriteFeeds   bool          `env:"WRITE_FEEDS" envDefault:"true"`
 	RedisNetwork string        `env:"REDIS_NETWORK" envDefault:"tcp"`
 	RedisAddr    string        `env:"REDIS_ADDR" envDefault:"redis:6379"`
 	RedisAuth    string        `env:"REDIS_AUTH"`
@@ -64,9 +66,11 @@ func run() error {
 		return errors.Wrap(err, "write systems")
 	}
 
-	log.Print("Writing feeds...")
-	if err := writeFeeds(systems, redisClient, gbfsClient, c.FeedsDelay); err != nil {
-		return errors.Wrap(err, "write feeds")
+	if c.WriteFeeds {
+		log.Print("Writing feeds...")
+		if err := writeFeeds(systems, redisClient, gbfsClient, c.FeedsDelay); err != nil {
+			return errors.Wrap(err, "write feeds")
+		}
 	}
 
 	return nil

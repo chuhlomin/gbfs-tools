@@ -52,7 +52,7 @@ func run() error {
 	gbfs.RedisClient = redisClient
 
 	http.HandleFunc("/", ok)
-	http.HandleFunc("/graphql", withLogging(withCORS(gbfs.Handler(), c.AllowOrigin)))
+	http.HandleFunc("/graphql", withLogging(withCORS(gbfs.HandlerGraphQL(), c.AllowOrigin)))
 	http.HandleFunc("/geojson", withLogging(withCORS(gbfs.HandlerGeoJSON(), c.AllowOrigin)))
 
 	bind := c.Hostname + ":" + c.Port
