@@ -2,90 +2,101 @@ package gbfs
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/chuhlomin/gbfs-go"
 	"github.com/graphql-go/graphql"
+	"github.com/graphql-go/handler"
 	"github.com/graphql-go/relay"
+	"github.com/pkg/errors"
 
+	"github.com/chuhlomin/gbfs-tools/pkg/redis"
 	"github.com/chuhlomin/gbfs-tools/pkg/structs"
 )
 
-var systemInformationType *graphql.Object
-var systemType *graphql.Object
-var feedType *graphql.Object
-var stationStatusType *graphql.Object
+var Client *gbfs.Client
+var RedisClient *redis.Client
 
 var Schema graphql.Schema
 
-func init() {
-	systemInformationType = graphql.NewObject(graphql.ObjectConfig{
-		Name:        "SystemInformation",
-		Description: "System information",
-		Fields: graphql.Fields{
-			"name": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Name",
-			},
-			"shortName": &graphql.Field{
-				Type:        graphql.String,
-				Description: "ShortName",
-			},
-			"operator": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Operator",
-			},
-			"url": &graphql.Field{
-				Type:        graphql.String,
-				Description: "URL",
-			},
-			"purchaseURL": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Purchase URL",
-			},
-			"startDate": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Start date",
-			},
-			"phoneNumber": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Phone number",
-			},
-			"email": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Email",
-			},
-			"feedContactEmail": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Feed contact email",
-			},
-			"timezone": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Timezone",
-			},
-			"licenseID": &graphql.Field{
-				Type:        graphql.String,
-				Description: "License ID",
-			},
-			"licenseURL": &graphql.Field{
-				Type:        graphql.String,
-				Description: "License URL",
-			},
-			"attributionOrganizationName": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Attribution organization name",
-			},
-			"attributionURL": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Attribution URL",
-			},
-			"language": &graphql.Field{
-				Type:        graphql.String,
-				Description: "Language",
-			},
-		},
+func HandlerGraphQL() http.Handler {
+	return handler.New(&handler.Config{
+		Schema:     &Schema,
+		Pretty:     true,
+		GraphiQL:   true,
+		Playground: true,
 	})
+}
 
-	feedType = graphql.NewObject(graphql.ObjectConfig{
+func init() {
+	// systemInformationType := graphql.NewObject(graphql.ObjectConfig{
+	// 	Name:        "SystemInformation",
+	// 	Description: "System information",
+	// 	Fields: graphql.Fields{
+	// 		"name": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Name",
+	// 		},
+	// 		"shortName": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "ShortName",
+	// 		},
+	// 		"operator": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Operator",
+	// 		},
+	// 		"url": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "URL",
+	// 		},
+	// 		"purchaseURL": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Purchase URL",
+	// 		},
+	// 		"startDate": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Start date",
+	// 		},
+	// 		"phoneNumber": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Phone number",
+	// 		},
+	// 		"email": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Email",
+	// 		},
+	// 		"feedContactEmail": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Feed contact email",
+	// 		},
+	// 		"timezone": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Timezone",
+	// 		},
+	// 		"licenseID": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "License ID",
+	// 		},
+	// 		"licenseURL": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "License URL",
+	// 		},
+	// 		"attributionOrganizationName": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Attribution organization name",
+	// 		},
+	// 		"attributionURL": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Attribution URL",
+	// 		},
+	// 		"language": &graphql.Field{
+	// 			Type:        graphql.String,
+	// 			Description: "Language",
+	// 		},
+	// 	},
+	// })
+
+	feedType := graphql.NewObject(graphql.ObjectConfig{
 		Name:        "Feed",
 		Description: "GBFS Feed",
 		Fields: graphql.Fields{
@@ -104,11 +115,10 @@ func init() {
 		},
 	})
 
-	systemType = graphql.NewObject(graphql.ObjectConfig{
+	systemType := graphql.NewObject(graphql.ObjectConfig{
 		Name:        "System",
 		Description: "Bikeshare system",
 		Fields: graphql.Fields{
-			// "id": relay.GlobalIDField("System", nil),
 			"id": &graphql.Field{
 				Type:        graphql.String,
 				Description: "System ID",
@@ -154,8 +164,9 @@ func init() {
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					source := p.Source
 					switch t := source.(type) {
-					case structs.System:
-						system := source.(structs.System)
+
+					case *structs.System:
+						system := source.(*structs.System)
 						return RedisClient.GetFeeds(system.ID)
 					default:
 						return nil, fmt.Errorf("Unexpected type %T in source: %v", t, p.Source)
@@ -165,7 +176,7 @@ func init() {
 		},
 	})
 
-	stationStatusType = graphql.NewObject(graphql.ObjectConfig{
+	stationStatusType := graphql.NewObject(graphql.ObjectConfig{
 		Name:        "StationStatus",
 		Description: "Station status",
 		Fields: graphql.Fields{
@@ -236,7 +247,7 @@ func init() {
 
 					countryCode, filterByCountryCode := p.Args["countryCode"]
 
-					systems, err := GetSystems()
+					systems, err := RedisClient.GetSystems()
 					if err != nil {
 						return nil, err
 					}
@@ -262,7 +273,7 @@ func init() {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return GetSystem(fmt.Sprintf("%v", p.Args["id"]))
+					return RedisClient.GetSystem(fmt.Sprintf("%v", p.Args["id"]))
 				},
 			},
 			"stationStatus": &graphql.Field{
@@ -276,7 +287,7 @@ func init() {
 					}
 					systemID := fmt.Sprintf("%v", p.Args["systemID"])
 
-					stations, err := GetStationStatus(systemID)
+					stations, err := getStationStatus(systemID)
 					if err != nil {
 						return nil, err
 					}
@@ -302,7 +313,7 @@ func init() {
 			// 		},
 			// 	},
 			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			// 		system, err := GetSystem(p.Args["id"])
+			// 		system, err := RedisClient.GetSystem(p.Args["id"])
 			// 		systems, err := GetSystemInformation()
 			// 		if err != nil {
 			// 			return nil, err
@@ -328,12 +339,16 @@ func init() {
 	}
 }
 
-func findFeed(feeds []gbfs.Feed, name string) (gbfs.Feed, error) {
-	for _, f := range feeds {
-		if f.Name == name {
-			return f, nil
-		}
+func getStationStatus(systemID string) ([]gbfs.StationStatus, error) {
+	url, err := RedisClient.GetFeedURL(systemID, "station_status", "en")
+	if err != nil {
+		return nil, errors.Wrapf(err, "get station status for %q", systemID)
 	}
 
-	return gbfs.Feed{}, fmt.Errorf("feed %q not found", name)
+	status, err := Client.LoadStationStatus(url)
+	if err != nil {
+		return nil, errors.Wrapf(err, "load station statis %q", url)
+	}
+
+	return status.Data.Stations, nil
 }

@@ -143,7 +143,49 @@ func (c *Client) GetFeedURL(systemID, feedName, language string) (string, error)
 	return url, err
 }
 
+var allFeeds map[string][]structs.Feed
+
+func (c *Client) CacheAllFeeds() error {
+	var keys []string
+	if err := c.client.Do(c.ctx, radix.Cmd(&keys, "KEYS", "feed:*")); err != nil {
+		return errors.Wrapf(err, "keys for all feeds")
+	}
+
+	if len(keys) == 0 {
+		return nil
+	}
+
+	allFeeds = map[string][]structs.Feed{}
+
+	var urls []string
+	if err := c.client.Do(c.ctx, radix.Cmd(&urls, "MGET", keys...)); err != nil {
+		return errors.Wrap(err, "mget for all feeds")
+	}
+
+	for i, key := range keys {
+		systemID, feedName, language := splitFeedKey(key)
+
+		feed := structs.Feed{
+			Name:     feedName,
+			URL:      urls[i],
+			Language: language,
+		}
+
+		if _, ok := allFeeds[systemID]; !ok {
+			allFeeds[systemID] = []structs.Feed{feed}
+		} else {
+			allFeeds[systemID] = append(allFeeds[systemID], feed)
+		}
+	}
+
+	return nil
+}
+
 func (c *Client) GetFeeds(systemID string) ([]structs.Feed, error) {
+	if feeds, ok := allFeeds[systemID]; ok {
+		return feeds, nil
+	}
+
 	var keys []string
 	if err := c.client.Do(c.ctx, radix.Cmd(&keys, "KEYS", fmt.Sprintf("feed:%s:*", systemID))); err != nil {
 		return nil, errors.Wrapf(err, "keys for %q feeds", systemID)
@@ -198,6 +240,6 @@ func (c *Client) GetFeedsLanguages(systemID string) ([]string, error) {
 
 func splitFeedKey(key string) (systemID, feedName, language string) {
 	v := strings.Split(key, ":")
-	systemID, feedName, language = v[0], v[1], v[2]
+	systemID, feedName, language = v[1], v[2], v[3]
 	return
 }

@@ -48,6 +48,11 @@ func run() error {
 		return errors.Wrap(err, "create Redis client")
 	}
 
+	log.Println("Loading feeds in memory...")
+	if err := redisClient.CacheAllFeeds(); err != nil {
+		log.Printf("Failed to load feeds: %v", err)
+	}
+
 	gbfs.Client = g.NewClient("github.com/chuhlomin/gbfs-tools", 30*time.Second)
 	gbfs.RedisClient = redisClient
 
