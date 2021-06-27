@@ -49,20 +49,30 @@ func (c *Client) WriteSystem(system gbfs.System) error {
 	return c.client.Do(c.ctx, radix.Cmd(nil, "SET", "system:"+system.ID, packSystem(system)))
 }
 
-func (c *Client) GetSystems() ([]*structs.System, error) {
+var systems []*structs.System
+
+func (c *Client) CacheAllSystems() error {
 	var keys []string
 	if err := c.client.Do(c.ctx, radix.Cmd(&keys, "KEYS", "system:*")); err != nil {
-		return nil, errors.Wrap(err, "get systems keys")
+		return errors.Wrap(err, "get systems keys")
 	}
 
 	var vals []string
 	if err := c.client.Do(c.ctx, radix.Cmd(&vals, "MGET", keys...)); err != nil {
-		return nil, errors.Wrap(err, "get systems keys")
+		return errors.Wrap(err, "get systems keys")
 	}
 
-	systems := []*structs.System{}
+	systems = []*structs.System{}
 	for _, val := range vals {
 		systems = append(systems, unpackSystem(val))
+	}
+
+	return nil
+}
+
+func (c *Client) GetSystems() ([]*structs.System, error) {
+	if err := c.CacheAllSystems(); err != nil {
+		return nil, err
 	}
 
 	return systems, nil

@@ -48,6 +48,11 @@ func run() error {
 		return errors.Wrap(err, "create Redis client")
 	}
 
+	log.Println("Loading systems in memory...")
+	if err := redisClient.CacheAllSystems(); err != nil {
+		log.Printf("Failed to load systems: %v", err)
+	}
+
 	log.Println("Loading feeds in memory...")
 	if err := redisClient.CacheAllFeeds(); err != nil {
 		log.Printf("Failed to load feeds: %v", err)
