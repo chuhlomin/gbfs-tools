@@ -28,7 +28,6 @@ jobs:
           CGO_ENABLED: "0"
           GOOS: linux
           GOARCH: amd64
-          GOPROXY: https://athens.chuhlomin.com
         working-directory: ./cmd/server
         run: |
           go build -mod=readonly -a -installsuffix cgo \
@@ -38,6 +37,7 @@ jobs:
       - name: Build and push to CR
         uses: chuhlomin/actions/docker-build-push@main
         with:
+          dockerfile: Dockerfile.server
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.PKG_TOKEN }}
