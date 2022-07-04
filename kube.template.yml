@@ -43,7 +43,7 @@ spec:
             - name: CORS_ALLOW_ORIGIN
               value: "{{ .cors_allow_origin }}"
       imagePullSecrets:
-        - name: regcred
+        - name: ghcrcred
 ---
 apiVersion: v1
 kind: Service
