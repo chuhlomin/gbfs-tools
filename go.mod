@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/caarlos0/env/v6 v6.4.0
 	github.com/chuhlomin/gbfs-go v0.0.0-20210320212848-34718cff9e79
-	github.com/graphql-go/graphql v0.7.9
+	github.com/graphql-go/graphql v0.8.0
 	github.com/graphql-go/handler v0.2.3
 	github.com/graphql-go/relay v0.0.0-20171208134043-54350098cfe5
 	github.com/kr/pretty v0.2.1 // indirect
