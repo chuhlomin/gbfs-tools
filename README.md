@@ -1,6 +1,20 @@
 # gbfs-tools
 
-![gbfs](https://user-images.githubusercontent.com/3620471/123731077-7b7cb900-d865-11eb-9cb7-fb7428fb3440.png)
+```mermaid
+flowchart LR
+    R[(Redis)]
+    W[gtfs-tools writer]
+    S[gtfs-tools server]
+    C[gbfs-console]
+    V[systems.csv]
+    F[GBFS feed]
+    
+    W --reads--> V
+    W --reads--> F
+    W --writes--> R
+    S --reads--> R
+    C --calls--> S
+```
 
 * `cmd/server` – GraphQL & GeoJSON server, deployed to [gbfs.chuhlomin.com](https://gbfs.chuhlomin.com)
 * `cmd/writer` – app that writes GBFS systems and feeds info into Redis
