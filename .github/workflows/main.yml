@@ -32,10 +32,10 @@ jobs:
           tags: ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
           platforms: linux/arm64
 
-      # - name: Deploy
-      #   uses: chuhlomin/actions/deploy@main
-      #   with:
-      #     server: dev1.chuhlomin.com
-      #     service: gbfs/graphql
-      #     tag: ${{ github.sha }}
-      #     auth: ${{ secrets.DEPLOY_AUTH }}
+      - name: Deploy
+        uses: chuhlomin/actions/deploy@main
+        with:
+          server: dev1.chuhlomin.com
+          service: gbfs/graphql
+          tag: ${{ github.sha }}
+          auth: ${{ secrets.DEPLOY_AUTH }}
