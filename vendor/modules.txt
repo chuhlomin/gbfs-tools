@@ -1,0 +1,54 @@
+# github.com/caarlos0/env/v6 v6.4.0
+## explicit
+github.com/caarlos0/env/v6
+# github.com/chuhlomin/gbfs-go v0.0.0-20210320212848-34718cff9e79
+## explicit
+github.com/chuhlomin/gbfs-go
+# github.com/graphql-go/graphql v0.8.0
+## explicit
+github.com/graphql-go/graphql
+github.com/graphql-go/graphql/gqlerrors
+github.com/graphql-go/graphql/language/ast
+github.com/graphql-go/graphql/language/kinds
+github.com/graphql-go/graphql/language/lexer
+github.com/graphql-go/graphql/language/location
+github.com/graphql-go/graphql/language/parser
+github.com/graphql-go/graphql/language/printer
+github.com/graphql-go/graphql/language/source
+github.com/graphql-go/graphql/language/typeInfo
+github.com/graphql-go/graphql/language/visitor
+# github.com/graphql-go/handler v0.2.3
+## explicit
+github.com/graphql-go/handler
+# github.com/graphql-go/relay v0.0.0-20171208134043-54350098cfe5
+## explicit
+github.com/graphql-go/relay
+# github.com/kr/pretty v0.2.1
+## explicit
+# github.com/liangyaopei/structmap v0.0.0-20200911074950-0e2911025a96
+## explicit
+github.com/liangyaopei/structmap
+# github.com/mattn/go-runewidth v0.0.7
+github.com/mattn/go-runewidth
+# github.com/mediocregopher/radix/v4 v4.0.0-beta.1
+## explicit
+github.com/mediocregopher/radix/v4
+github.com/mediocregopher/radix/v4/internal/bytesutil
+github.com/mediocregopher/radix/v4/internal/proc
+github.com/mediocregopher/radix/v4/resp
+github.com/mediocregopher/radix/v4/resp/resp3
+github.com/mediocregopher/radix/v4/trace
+# github.com/olekukonko/tablewriter v0.0.4
+## explicit
+github.com/olekukonko/tablewriter
+# github.com/paulmach/go.geojson v1.4.0
+## explicit
+github.com/paulmach/go.geojson
+# github.com/pkg/errors v0.9.1
+## explicit
+github.com/pkg/errors
+# github.com/tilinna/clock v1.0.2
+github.com/tilinna/clock
+# golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
+## explicit
+golang.org/x/net/context

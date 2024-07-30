@@ -1,41 +1,17 @@
-FROM golang:1.16.3 as builder
+FROM --platform=$BUILDPLATFORM golang:1.22 AS builder
 WORKDIR /app/
 COPY . .
 RUN go test ./...
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOPROXY=https://athens.chuhlomin.com \
-    go build -mod=readonly -a -installsuffix cgo \
+
+ARG TARGETOS
+ARG TARGETARCH
+
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -ldflags="-w -s" -mod=vendor -buildvcs \
+    -a -installsuffix cgo \
     -o server cmd/server/main.go
 
 
-FROM alpine:3.7 as alpine
-
-RUN apk add -U --no-cache ca-certificates && update-ca-certificates
-
-# Create appuser
-ENV USER=appuser
-ENV UID=10001
-
-# See https://stackoverflow.com/a/55757473/12429735RUN 
-RUN adduser \
-    -D \
-    -g "" \
-    -h "/nonexistent" \
-    -H \
-    -s "/sbin/nologin" \
-    -u "${UID}" \
-    "${USER}"
-
-
-FROM scratch
-
-# Use an unprivileged user
-USER appuser:appuser
-
-EXPOSE 8080
-
-COPY --from=alpine /etc/passwd /etc/passwd
-COPY --from=alpine /etc/group /etc/group
-COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+FROM gcr.io/distroless/static:latest
 COPY --from=builder /app/server /server
-
-ENTRYPOINT ["/server"]
+CMD ["/server"]

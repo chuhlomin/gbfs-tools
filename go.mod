@@ -15,5 +15,4 @@ require (
 	github.com/paulmach/go.geojson v1.4.0
 	github.com/pkg/errors v0.9.1
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb // indirect
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )
